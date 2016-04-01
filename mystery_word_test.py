@@ -49,21 +49,55 @@ class TestMysteryWord(unittest.TestCase):
     def test_read_dictionary(self):
         word_list = mystery_word.read_dictionary()
         self.assertTrue(len(word_list)>0)
-        self.assertTrue(len(word_list[0])>0))
+        self.assertTrue(len(word_list[0])>0)
         self.assertTrue(str(word_list[0]) is word_list[0])
 
-    def test_get_word(self):
-        word_list=['easy','EEasy','EASY','norml',"Norml","NORML","hardest","Hardest","HARDEST"]
-        self.assertEqual(mystery_word.get_word([word_list],'easy').lower(),'easy')
+    def test_get_word_easy(self):
+        word_list=['easy','Easy','EASY','normals',"Normals","NORMALS","superhard","Superhard","SUPERHARD"]
+        self.assertEqual(mystery_word.get_word(word_list,'easy'),'easy')
 
-    def test_get_word(self):
-        word_list=['easy','EEasy','EASY','norml',"Norml","NORML","hardest","Hardest","HARDEST"]
-        self.assertEqual(mystery_word.get_word([word_list],'normal').lower(),'norml')
+    def test_get_word_normal(self):
+        word_list=['easy','Easy','EASY','normals',"Normals","NORMALS","superhard","Superhard","SUPERHARD"]
+        self.assertEqual(mystery_word.get_word(word_list,'normal'),'normals')
 
-    def test_get_word(self):
-        word_list=['easy','EEasy','EASY','norml',"Norml","NORML","hardest","Hardest","HARDEST"]
-        self.assertEqual(mystery_word.get_word([word_list],'hard').lower(),'hard')
+    def test_get_word_hard(self):
+        word_list=['easy','Easy','EASY','normals',"Normals","NORMALS","superhard","Superhard","SUPERHARD"]
+        self.assertEqual(mystery_word.get_word(word_list,'hard'),'superhard')
 
+    def test_get_wrong_guesses(self):
+        secret_word = 'apple'
+        guesses = ['q','w','r','t','y','u','i','o']
+        self.assertEqual(mystery_word.get_wrong_guesses(secret_word, guesses),guesses)
+
+    def test_time_up_too_many_misses(self):
+        secret_word = 'apple'
+        guesses = ['q','w','r','t','y','u','i','o']
+        max_misses = 8
+        self.assertTrue(mystery_word.is_time_up(secret_word,guesses,max_misses))
+
+    def test_round_over_too_many_misses(self):
+        secret_word = 'apple'
+        guesses = ['q','w','r','t','y','u','i','o']
+        max_misses = 8
+        self.assertTrue(mystery_word.is_round_over(secret_word,guesses,max_misses))
+
+    def test_word_is_guessed_simple(self):
+        secret_word = 'apple'
+        guesses = [x for x in secret_word]
+        self.assertTrue(mystery_word.is_word_guessed(secret_word,guesses))
+
+    def test_word_is_guessed_capitalized(self):
+        secret_word = 'Apple'
+        guesses = [x.lower() for x in secret_word]
+        self.assertTrue(mystery_word.is_word_guessed(secret_word,guesses))
+
+    def test_round_over_guessed(self):
+        secret_word = 'apple'
+        guesses = [x for x in secret_word]
+        max_misses = 8
+        self.assertTrue(mystery_word.is_round_over(secret_word,guesses,max_misses))
+
+    def test_
 
 if __name__ == '__main__':
     unittest.main()
