@@ -35,7 +35,7 @@ class TestMysteryWord(unittest.TestCase):
         self.assertEqual(emw.evaluate_guess(test_list,test_guesses),'_at')
 
     def test_get_candidates(self):
-        test_list =['bat','cat','bam']
+        test_list =['bat','cat','bam','']
         test_guesses = ['a','t']
         self.assertEqual(emw.get_candidates(test_list,test_guesses,'_at'),['bat','cat'])
         self.assertTrue(test_list == ['bat','cat','bam'])

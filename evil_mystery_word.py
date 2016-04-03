@@ -35,7 +35,7 @@ def get_candidates(candidate_word_list,guesses,signature):
 
 def display_status(guesses, signature):
     print(20*'=')
-    print("Guess #{}".format(len(guesses)))
+    print("Guess #{}".format(len(guesses)+1))
     print("Word: "+signature)
     print("Misses: {}".format([x for x in guesses if x not in signature]))
 
@@ -44,7 +44,9 @@ def play_a_turn(candidate_word_list,guesses, max_misses):
     guess = input("> ")
     guesses.append(guess)
     signature = evaluate_guess(candidate_word_list,guesses)
-    candidate_word_list = get_candidates(candidate_word_list,guesses,signature)
+    # print(candidate_word_list[:10])
+    # print(signature)
+    return(get_candidates(candidate_word_list,guesses,signature))
     #display status
     #prompr for guess
     #evaluate guesses
@@ -62,16 +64,17 @@ def is_round_over(candidate_word_list, guesses, max_misses):
     return False
 
 def play_game_round(candidate_word_list):
-    max_misses = 13
+    max_misses = 26
     length = 4
     candidate_word_list = [x for x in candidate_word_list if len(x) == length]
     guesses = []
     while True:
         if is_round_over(candidate_word_list, guesses, max_misses):
+            display_status(guesses,evaluate_guess(candidate_word_list,guesses))
             # finish_round(secret_word, guesses, max_misses)
             break
         else:
-            play_a_turn(candidate_word_list, guesses, max_misses)
+            candidate_word_list = play_a_turn(candidate_word_list, guesses, max_misses)
 
 
 def main():
