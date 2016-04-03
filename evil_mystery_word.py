@@ -39,9 +39,19 @@ def display_status(guesses, signature):
     print("Word: "+signature)
     print("Misses: {}".format([x for x in guesses if x not in signature]))
 
+def get_good_guess(guesses):
+    guess = input("> ")
+    if guess in guesses:
+        print("You already guessed that. Please try again.")
+        return get_good_guess ()
+    if len(guess) !=1 or not guess.isalpha():
+        print("Guesses must be exactly 1 letter. Please try again.")
+        return get_good_guess()
+    return guess.lower()
+
 def play_a_turn(candidate_word_list,guesses, max_misses):
     display_status(guesses, evaluate_guess(candidate_word_list,guesses))
-    guess = input("> ")
+    get_good_guess(guesses)
     guesses.append(guess)
     signature = evaluate_guess(candidate_word_list,guesses)
     # print(candidate_word_list[:10])
@@ -50,7 +60,6 @@ def play_a_turn(candidate_word_list,guesses, max_misses):
     #display status
     #prompr for guess
     #evaluate guesses
-
 
 def is_round_over(candidate_word_list, guesses, max_misses):
     if len(candidate_word_list) ==0:
