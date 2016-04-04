@@ -37,19 +37,6 @@ def get_candidates(candidate_word_list,guesses,signature):
 def get_misses(guesses, signature):
     return [x for x in guesses if x not in signature]
 
-def play_a_turn(candidate_word_list, guesses, max_misses):
-    signature = evaluate_guess(candidate_word_list,guesses)
-    mw.display_status(signature,get_misses(guesses,signature),max_misses,len(guesses)+1)
-    guess = mw.get_good_guess(guesses)
-    guesses.append(guess)
-    signature = evaluate_guess(candidate_word_list,guesses)
-    # print(candidate_word_list[:10])
-    # print(signature)
-    return(get_candidates(candidate_word_list,guesses,signature))
-    #display status
-    #prompr for guess
-    #evaluate guesses
-
 def is_round_over(candidate_word_list, guesses, max_misses):
     if len(candidate_word_list) ==0:
         return True
@@ -60,6 +47,14 @@ def is_round_over(candidate_word_list, guesses, max_misses):
     if len(misses) >= max_misses:
         return True
     return False
+
+#NOT SUBJECT TO UNIT TESTING
+def play_a_turn(candidate_word_list, guesses, max_misses):
+    signature = evaluate_guess(candidate_word_list,guesses)
+    mw.display_status(signature,get_misses(guesses,signature),max_misses,len(guesses)+1)
+    guesses.append(mw.get_good_guess(guesses))
+    signature = evaluate_guess(candidate_word_list,guesses)
+    return get_candidates(candidate_word_list, guesses, signature)
 
 def finish_round(candidate_word_list, guesses):
     if '_' not in evaluate_guess(candidate_word_list,guesses):
