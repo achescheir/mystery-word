@@ -51,7 +51,7 @@ def is_round_over(candidate_word_list, guesses, max_misses):
 #NOT SUBJECT TO UNIT TESTING
 def play_a_turn(candidate_word_list, guesses, max_misses):
     signature = evaluate_guess(candidate_word_list,guesses)
-    mw.display_status(signature,get_misses(guesses,signature),max_misses,len(guesses)+1)
+    mw.display_status(' '.join(signature),get_misses(guesses,signature),max_misses,len(guesses)+1)
     guesses.append(mw.get_good_guess(guesses))
     signature = evaluate_guess(candidate_word_list,guesses)
     return get_candidates(candidate_word_list, guesses, signature)
