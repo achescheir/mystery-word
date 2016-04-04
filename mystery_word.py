@@ -1,4 +1,5 @@
 import random
+import os
 DICTIONARY_PATH = '/usr/share/dict/words'
 
 # I got the ordinal function from:
@@ -18,11 +19,7 @@ def ordinal(num):
     return str(num) + suffix
 # Copied code ends here
 
-def ordinal_to_print(number, last):
-    if number == last:
-        return 'last'
-    else:
-        return ordinal(number)
+# SUBJECT TO UNIT TESTING
 
 def parse_difficulty(user_input):
     if len(user_input) == 0:
@@ -36,43 +33,27 @@ def parse_difficulty(user_input):
     else:
         return ''
 
-def get_difficulty():
-    user_input = input("Please Select a difficulty: (E)asy, (N)ormal, or (H)ard. ")
-    difficulty = parse_difficulty(user_input)
-    if len(difficulty) >0:
-        return difficulty
-    else:
-        print("I'm sorry that is not a valid selection.")
-        return get_difficulty()
-
-def read_dictionary():
-    word_list = []
-    with open(DICTIONARY_PATH, 'r') as word_file:
-        for each_word in word_file:
-            word_list.append(each_word.strip())
-    return word_list
-
-def get_word(word_list,difficulty):
+def get_sublist(word_list,difficulty):
     if difficulty == 'easy':
-        return random.choice([x for x in word_list if len(x) >=4 and len(x) <= 6]).lower()
+        return [x for x in word_list if len(x) >=4 and len(x) <= 6]
     elif difficulty == "normal":
-        return random.choice([x for x in word_list if len(x) >=6 and len(x) <= 8]).lower()
+        return [x for x in word_list if len(x) >=6 and len(x) <= 8]
     elif difficulty == "hard":
-        return random.choice([x for x in word_list if len(x) >=8]).lower()
+        return [x for x in word_list if len(x) >=8]
     else:
         raise ValueError("{} is not a valid difficulty; should be 'easy','normal', or 'hard'.")
 
-def start_round(word_list):
-    guesses = []
-    difficulty = get_difficulty()
-    secret_word = get_word(word_list,difficulty)
-    return secret_word, guesses, difficulty
+def get_word(sub_list):
+    return random.choice(sub_list).lower()
 
 def get_wrong_guesses_form(wrong_guesses, max_misses):
     return('['+''.join(wrong_guesses)+(max_misses-len(wrong_guesses))*'-'+']')
 
 def letter_is_in_collection(letter, collection, case = "insensitive" ):
-    return letter.lower() in collection or letter.upper() in collection
+    if case == "insensitive":
+        return letter.lower() in collection or letter.upper() in collection
+    else:
+        return letter in collection
 
 def get_word_print_form(secret_word, guesses):
     print_form = []
@@ -83,32 +64,11 @@ def get_word_print_form(secret_word, guesses):
             print_form.append("_")
     return ' '.join(print_form)
 
-def display_status(secret_word, guesses, max_misses):
-    wrong_guesses = get_wrong_guesses(secret_word,guesses)
-    print(10*'-'+"Guess #{}"+10*'-'+'\n')
-    print("The word so far> "+get_word_print_form(secret_word, guesses)+'\n')
-    print("Misses>"+get_wrong_guesses_form(wrong_guesses,max_misses)+'\n')
-
 def cleanup_input(user_input):
     if len(user_input) == 1:
         if user_input.isalpha():
             return user_input.lower()
-    else:
-        return ''
-
-def play_a_turn(secret_word, guesses, max_misses):
-    display_status(secret_word, guesses, max_misses)
-    while True:
-        user_input = input("What's your {} guess? ".format(ordinal(len(guesses)+1)))
-        cleaned_input = cleanup_input(user_input)
-        if cleaned_input:
-            if letter_is_in_collection(cleaned_input,guesses):
-                print("You already guessed {}. Please try again.".format(cleaned_input))
-            else:
-                guesses.append(cleaned_input)
-                break
-        else:
-            print("I'm sorry {} is not valid. Please enter exactly 1 alphabetical character.".format(user_input))
+    return ''
 
 def is_word_guessed(secret_word, guesses):
     for each_letter in secret_word:
@@ -130,13 +90,61 @@ def is_time_up(secret_word, guesses, max_misses):
 def is_round_over(secret_word, guesses, max_misses):
     return is_word_guessed(secret_word, guesses) or is_time_up(secret_word, guesses, max_misses)
 
+#NOT SUBJECT TO UNIT TESTING
+
+def get_difficulty():
+    os.system('clear')
+    user_input = input("Please Select a difficulty: (E)asy, (N)ormal, or (H)ard. ")
+    difficulty = parse_difficulty(user_input)
+    if len(difficulty) >0:
+        return difficulty
+    else:
+        print("I'm sorry that is not a valid selection.")
+        return get_difficulty()
+
+def read_dictionary():
+    word_list = []
+    with open(DICTIONARY_PATH, 'r') as word_file:
+        for each_word in word_file:
+            word_list.append(each_word.strip())
+    return word_list
+
+def start_round(word_list):
+    guesses = []
+    difficulty = get_difficulty()
+    secret_word = get_word(get_sublist(word_list,difficulty))
+    return secret_word, guesses, difficulty
+
+def display_status(word_signature, wrong_guesses, max_misses, number_of_guess):
+    os.system("clear")
+    print(10*'-'+"Guess #{}".format(number_of_guess)+10*'-'+'\n')
+    print("The word so far> "+word_signature+'\n')
+    print("Misses>"+get_wrong_guesses_form(wrong_guesses,max_misses)+'\n')
+
+def get_good_guess(guesses):
+    while True:
+        user_input = input("What's your {} guess? ".format(ordinal(len(guesses)+1)))
+        cleaned_input = cleanup_input(user_input)
+        if cleaned_input:
+            if letter_is_in_collection(cleaned_input,guesses):
+                print("You already guessed {}. Please try again.".format(cleaned_input))
+            else:
+                return cleaned_input
+                break
+        else:
+            print("I'm sorry {} is not valid. Please enter exactly 1 letter.".format(user_input))
+
+def play_a_turn(secret_word, guesses, max_misses):
+    display_status(get_word_print_form(secret_word, guesses),get_wrong_guesses(secret_word,guesses), max_misses, len(guesses)+1)
+    guesses.append(get_good_guess(guesses))
+
 def finish_round(secret_word, guesses, max_misses):
-    display_status(secret_word, guesses, max_misses)
+    display_status(get_word_print_form(secret_word, guesses),get_wrong_guesses(secret_word,guesses), max_misses,len(guesses)+1)
     if is_word_guessed(secret_word, guesses):
-        print("You win!")
+        print("You win!\n")
     else:
         print("Sorry time's up, you lose.")
-        print("The word was: '{}'".format(secret_word.upper()))
+        print("The word was: '{}'\n".format(secret_word.upper()))
 
 
 def play_game_round(word_list):
@@ -163,7 +171,7 @@ def main():
     while True:
         play_game_round(word_list)
         if not should_play_again():
-            print("Thanks for playing.")
+            print("\nThanks for playing.")
             break
     print("Goodbye.")
 

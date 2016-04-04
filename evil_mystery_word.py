@@ -1,6 +1,7 @@
 import mystery_word as mw
-from collections import Counter
 
+
+# For unittesting
 def get_signature(candidate_word, guesses):
     signature = []
     for each_letter in candidate_word:
@@ -33,25 +34,13 @@ def evaluate_guess(candidate_word_list,guesses):
 def get_candidates(candidate_word_list,guesses,signature):
     return get_all_signatures(candidate_word_list,guesses)[signature]
 
-def display_status(guesses, signature):
-    print(20*'=')
-    print("Guess #{}".format(len(guesses)+1))
-    print("Word: "+signature)
-    print("Misses: {}".format([x for x in guesses if x not in signature]))
+def get_misses(guesses, signature):
+    return [x for x in guesses if x not in signature]
 
-def get_good_guess(guesses):
-    guess = input("> ")
-    if guess in guesses:
-        print("You already guessed that. Please try again.")
-        return get_good_guess ()
-    if len(guess) !=1 or not guess.isalpha():
-        print("Guesses must be exactly 1 letter. Please try again.")
-        return get_good_guess()
-    return guess.lower()
-
-def play_a_turn(candidate_word_list,guesses, max_misses):
-    display_status(guesses, evaluate_guess(candidate_word_list,guesses))
-    get_good_guess(guesses)
+def play_a_turn(candidate_word_list, guesses, max_misses):
+    signature = evaluate_guess(candidate_word_list,guesses)
+    mw.display_status(signature,get_misses(guesses,signature),max_misses,len(guesses)+1)
+    guess = mw.get_good_guess(guesses)
     guesses.append(guess)
     signature = evaluate_guess(candidate_word_list,guesses)
     # print(candidate_word_list[:10])
@@ -67,20 +56,28 @@ def is_round_over(candidate_word_list, guesses, max_misses):
     word_signature = evaluate_guess(candidate_word_list,guesses)
     if "_" not in word_signature:
         return True
-    misses = [x for x in guesses if x not in word_signature]
-    if len(misses) >max_misses:
+    misses = get_misses(guesses,word_signature)
+    if len(misses) >= max_misses:
         return True
     return False
 
+def finish_round(candidate_word_list, guesses):
+    if '_' not in evaluate_guess(candidate_word_list,guesses):
+        print("You win!")
+    else:
+        print("You lose. My word was {}.".format(mw.get_word(candidate_word_list).upper()))
+
+
 def play_game_round(candidate_word_list):
-    max_misses = 26
+    max_misses = 10
     length = 4
     candidate_word_list = [x for x in candidate_word_list if len(x) == length]
     guesses = []
     while True:
         if is_round_over(candidate_word_list, guesses, max_misses):
-            display_status(guesses,evaluate_guess(candidate_word_list,guesses))
-            # finish_round(secret_word, guesses, max_misses)
+            signature = evaluate_guess(candidate_word_list,guesses)
+            mw.display_status(signature,get_misses(guesses,signature),max_misses,len(guesses)+1)
+            finish_round(candidate_word_list,guesses)
             break
         else:
             candidate_word_list = play_a_turn(candidate_word_list, guesses, max_misses)
